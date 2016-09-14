@@ -6,7 +6,6 @@ Created on 27 lut 2016
 '''
 import sys
 import datetime
-import CQAppWindowWidget
 from PyQt4 import QtGui #QtCore
 
 class CQMainWindow(QtGui.QMainWindow):
