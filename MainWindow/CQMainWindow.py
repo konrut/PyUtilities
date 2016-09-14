@@ -12,7 +12,6 @@ class CQMainWindow(QtGui.QMainWindow):
     '''
     classdocs
     '''
-
     def __init__(self):
         super(CQMainWindow,self).__init__()
         
