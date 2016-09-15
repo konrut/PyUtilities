@@ -1,19 +1,20 @@
 '''
 Created on 27 lut 2016
 
-@file: CQMainWindow.py
+@file: CQAppWindow.py
 @author: Konrad Rutkowski
 '''
+
 import sys
 import datetime
 from PyQt4 import QtGui #QtCore
 
-class CQMainWindow(QtGui.QMainWindow):
+class CQAppWindow(QtGui.QMainWindow):
     '''
     classdocs
     '''
     def __init__(self):
-        super(CQMainWindow,self).__init__()
+        super(CQAppWindow,self).__init__()
         
         self.setGeometry(50,50,600,600)
         self.setWindowIcon(QtGui.QIcon("pyIcon.png"))

@@ -6,12 +6,12 @@ Created on 13 lip 2016
 
 from PyQt4 import QtGui, QtCore
 
-class CQAppWindowWidget(QtGui.QWidget):    
+class CQAppPageWidget(QtGui.QWidget):    
     
     sigMsgPrint = QtCore.pyqtSignal('QString')
 
     def __init__(self, mainWindow):
-        super(CQAppWindowWidget,self).__init__()
+        super(CQAppPageWidget,self).__init__()
         
         self.sigMsgPrint.connect(mainWindow.msgPrint)
 
