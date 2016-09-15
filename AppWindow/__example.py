@@ -13,9 +13,8 @@ from AppWindow.CQAppPageWidget import CQAppPageWidget
 class PageWgtHome(CQAppPageWidget):    
     
     def __init__(self, appWindow):
-        super(CQAppPageWidget,self).__init__(appWindow);
-        appWindow.msgPrint('Hallo World!');
-
+        super(PageWgtHome,self).__init__(appWindow);
+        self.appMessage('Hallo World!');
 
 def main():
     app = QtGui.QApplication(sys.argv)

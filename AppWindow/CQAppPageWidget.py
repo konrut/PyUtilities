@@ -6,18 +6,27 @@ Created on 13 lip 2016
 
 from PyQt4 import QtGui, QtCore
 
-class CQAppPageWidget(QtGui.QWidget):    
-    
-    sigMsgPrint = QtCore.pyqtSignal('QString')
+class CQAppPageWidget(QtGui.QWidget):
+
+    sigAppMessage = QtCore.pyqtSignal('QString')
+    sigAppProgress = QtCore.pyqtSignal('int')
 
     def __init__(self, mainWindow):
         super(CQAppPageWidget,self).__init__()
+        self.Name = 'WIN';
         
-        self.sigMsgPrint.connect(mainWindow.msgPrint)
+        self.sigAppMessage.connect(mainWindow.message)        
+        self.sigAppProgress.connect(mainWindow.progress) 
 
-
-    def msgPrint(self, msg):
-        self.sigMsgPrint.emit(msg);
+    def appMessage(self, msg):
+        msg = self.Name + ': ' + msg;
+        self.sigAppMessage.emit(msg);
+        
+    def appProgress(self, progress):
+        self.sigProgress.emit(progress);
+        
+    def setName(self, name):
+        self.Name = name;
 
     '''
         

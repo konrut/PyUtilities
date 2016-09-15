@@ -57,9 +57,17 @@ class CQAppWindow(QtGui.QMainWindow):
     def home(self):
         self.setWidget(self.homeWgt)
         
-    def msgPrint(self, msg):
+    def message(self, msg):
         time = datetime.datetime.now()
-        self.msgLog.append(time.strftime("[%H:%m:%S] - " + msg))  
+        self.msgLog.append(time.strftime("[%H:%m:%S] - " + msg)) 
+
+    def progress(self, progress):
+        if progress >= 100:
+            self.progressBar.setValue(100);
+            self.progressBar.setVisible(False);
+        else:
+            self.progressBar.setValue(progress);
+            self.progressBar.setVisible(True);  
         
     def setWidget(self, widget):
         vLayout = QtGui.QVBoxLayout()  
