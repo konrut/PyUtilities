@@ -15,6 +15,7 @@ class PageWgtHome(CQAppPageWidget):
     def __init__(self, appWindow):
         super(PageWgtHome,self).__init__(appWindow);
         self.appMessage('Hallo World!');
+        self.appProgress(20);
 
 def main():
     app = QtGui.QApplication(sys.argv)

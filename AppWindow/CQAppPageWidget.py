@@ -23,7 +23,7 @@ class CQAppPageWidget(QtGui.QWidget):
         self.sigAppMessage.emit(msg);
         
     def appProgress(self, progress):
-        self.sigProgress.emit(progress);
+        self.sigAppProgress.emit(progress);
         
     def setName(self, name):
         self.Name = name;
