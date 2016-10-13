@@ -3,6 +3,7 @@ Created on 27 lut 2016
 
 @file: CQAppWindow.py
 @author: Konrad Rutkowski
+
 '''
 
 import sys
