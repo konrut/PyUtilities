@@ -6,11 +6,11 @@ Created on 15 wrz 2016
 
 import sys
 from PyQt4 import QtGui
-from AppWindow.CQAppWindow import CQAppWindow
-from AppWindow.CQAppPageWidget import CQAppPageWidget
+import qtapp
+import qtapp.wgt_page
 
 
-class PageWgtHome(CQAppPageWidget):    
+class PageWgtHome(qtapp.wgt_page.CQAppPageWidget):    
     
     def __init__(self, appWindow):
         super(PageWgtHome,self).__init__(appWindow);
@@ -20,7 +20,7 @@ class PageWgtHome(CQAppPageWidget):
 def main():
     app = QtGui.QApplication(sys.argv)
     
-    win = CQAppWindow();
+    win = qtapp.CQAppWindow();
     win.show();
     
     pageHome = PageWgtHome(win);
