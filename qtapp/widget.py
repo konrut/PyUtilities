@@ -29,8 +29,8 @@ class AppWidget(PyQt5.QtWidgets.QWidget):
     def progress(self, progress):
         self.sig_progress.emit(progress)
         
-    def settings(self):
-        self._attribs.get_settingsform().show()
+    def exec_settings(self):
+        self._attribs.exec_settings(self.name + ': settings')
         
     def set_name(self, name):
         self.name = name
@@ -63,16 +63,5 @@ class AppWidget(PyQt5.QtWidgets.QWidget):
     def _add_attrib(self, name, value, attribtype = qtapp.attribstore.AttribType.text, description = '',is_setting = True, option_list = []):
         return self._attribs.add(name, value, attribtype, description, is_setting, option_list)
         
-    
-    '''
-        
-        vLayout = QtGui.QVBoxLayout()
-        
-        btnClose = QtGui.QPushButton("Quit")   
-            
-        vLayout.addWidget(btnClose)
-        vLayout.addStretch()
-        
-        self.setLayout(vLayout)
-    '''
+
         

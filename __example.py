@@ -33,8 +33,7 @@ def main():
     win.add_page(pageHome);
     pageHome.init()
     win.add_utility(utilSql)
-    win.add_utility(utilSvn)
-    
+    win.add_utility(utilSvn)    
     
     sys.exit(app.exec_())
     

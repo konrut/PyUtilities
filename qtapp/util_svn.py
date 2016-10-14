@@ -28,7 +28,7 @@ class AppUtilSvn(qtapp.utility.AppUtility):
         #Actions:
         action_settings = PyQt5.QtWidgets.QAction('Settings', self)
         action_settings.setStatusTip('SQL connection settings')
-        action_settings.triggered.connect(self.settings)  
+        action_settings.triggered.connect(self.exec_settings)  
         self._add_menuaction(action_settings.text(), action_settings)
         
         action_test = PyQt5.QtWidgets.QAction('debug', self)
