@@ -15,37 +15,15 @@ class AppUtilSvn(qtapp.utility.AppUtility):
     classdocs
     '''
 
-    def __init__(self, mainWindow):
+    def __init__(self, name = 'SVN'):
         '''
         Constructor
         '''
-        super(AppUtilSvn,self).__init__(mainWindow,'SVN')
+        super(AppUtilSvn,self).__init__(name)
         
-        #window: settings
-        self.wgtSettings = PyQt5.QtWidgets.QWidget()
-        self.wgtSettings.setWindowTitle(self.name + ': settings')
-        self.wgtSettings.setWindowModality(PyQt5.QtCore.Qt.WindowModal)
-        
-        self.wgtSettings.setLayout(PyQt5.QtWidgets.QVBoxLayout())
-        
-        Form = PyQt5.QtWidgets.QWidget(self)
-        Form.setLayout(PyQt5.QtWidgets.QFormLayout())
-        self.wgtSettings.layout().addWidget(Form)        
-
-        
-        self.edit_path = PyQt5.QtWidgets.QLineEdit()
-        Form.layout().addRow('SVN bin folder:',self.edit_path)
-        
-        
-        self.edit_svn_dir = PyQt5.QtWidgets.QLineEdit()
-        Form.layout().addRow('SVN directory:',self.edit_svn_dir)
-        
-        self.edit_direct_dir = PyQt5.QtWidgets.QLineEdit()
-        Form.layout().addRow('Direct access directory:',self.edit_direct_dir)
-        
-        
-        #self.wgtSettings.
-        
+        self._add_attrib('SVN_bin', '', description = 'SVN bin folder')        
+        self._add_attrib('SVN_dir', '', description = 'SVN directory')
+        self._add_attrib('SVN_access', '', description = 'Direct access directory')        
         
         #Actions:
         action_settings = PyQt5.QtWidgets.QAction('Settings', self)
@@ -60,9 +38,6 @@ class AppUtilSvn(qtapp.utility.AppUtility):
                 
     def put(self, file_dir, svn_dir, comment = ''):
         subprocess.call(['svnmucc', '--non-interactive',  '-m', comment,'put', file_dir, svn_dir])            
-    
-    def settings(self):
-        self.wgtSettings.show()
         
     def _test(self):
         self.put(PyQt5.QtWidgets.QFileDialog.getOpenFileName()[0],'svn://diskstation/library/footprints/tmp','test')

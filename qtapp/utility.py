@@ -12,10 +12,10 @@ class AppUtility(qtapp.widget.AppWidget):
     '''
 
 
-    def __init__(self, mainWindow, name):
+    def __init__(self, name):
         '''
         Constructor
         '''
-        super(AppUtility,self).__init__(mainWindow)
+        super(AppUtility,self).__init__()
         self.set_name(name)        
         

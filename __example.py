@@ -10,12 +10,13 @@ import qtapp.widget
 import qtapp.util_sql
 import qtapp.util_svn
 
-
 class PageWgtHome(qtapp.widget.AppWidget):    
     
     def __init__(self, appWindow):
-        super(PageWgtHome,self).__init__(appWindow);
-        self.Name = 'Page'
+        super(PageWgtHome,self).__init__();
+        self.Name = 'Page'        
+        
+    def init(self):
         self.message('Hallo World!');
         self.progress(20);
 
@@ -26,12 +27,14 @@ def main():
     win.show();
     
     pageHome = PageWgtHome(win);
-    utilSql = qtapp.util_sql.AppUtilSql(win)
-    utilSvn = qtapp.util_svn.AppUtilSvn(win)
+    utilSql = qtapp.util_sql.AppUtilSql()
+    utilSvn = qtapp.util_svn.AppUtilSvn()
     
-    win.set_currentpage(pageHome);
+    win.add_page(pageHome);
+    pageHome.init()
     win.add_utility(utilSql)
     win.add_utility(utilSvn)
+    
     
     sys.exit(app.exec_())
     

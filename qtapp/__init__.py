@@ -58,8 +58,9 @@ class AppWindow(QtWidgets.QMainWindow):
         
         self.menuUtilities = None
         
-        #Utilities
+        #Content
         self.utilities = {}
+        self.pages = {}
                 
         
     def home(self):
@@ -78,9 +79,20 @@ class AppWindow(QtWidgets.QMainWindow):
             self.progressBar.setVisible(True);  
         
     def set_currentpage(self, widget):
+        # @todo: 
         vLayout = QtWidgets.QVBoxLayout()  
         vLayout.addWidget(widget)
-        self.mainWidget.setLayout(vLayout);   
+        self.mainWidget.setLayout(vLayout);  
+         
+    def add_page(self, page):
+        if page.name in self.utilities:
+            self.message('Adding page error. Page with given name already exists.')
+            return
+        self.pages[page.name] = page
+        
+        #Signals:
+        page.sig_message.connect(self.message)        
+        page.sig_progress.connect(self.progress) 
         
     def add_utility(self, utility):
         if utility.name in self.utilities:
@@ -96,9 +108,14 @@ class AppWindow(QtWidgets.QMainWindow):
             
         self.menuUtilities.addMenu(utility_menu)
         self.utilities[utility.name] = utility
+        
+        #Signals:
+        utility.sig_message.connect(self.message)        
+        utility.sig_progress.connect(self.progress) 
                 
     def closeEvent(self, event):
         event.accept()
+        sys.exit()
         return
         choice = QtWidgets.QMessageBox.question(self, "Closing", "Do you realy want to quit?", QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.Yes)
         if choice == QtWidgets.QMessageBox.Yes:
