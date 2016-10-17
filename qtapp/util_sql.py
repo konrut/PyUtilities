@@ -51,7 +51,7 @@ class AppUtilSql(qtapp.utility.AppUtility):
             print(db.lastError().text())
         
         
-        q = db.exec("SELECT * FROM components.components")
+        q = db.exec_("SELECT * FROM components.components")
         print(q.record().fieldName(1))
         
         

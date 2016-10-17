@@ -6,6 +6,7 @@ Created on 14 oct 2016
 
 import enum
 import PyQt5.QtWidgets
+import xml.etree
 
 class AttribType(enum.Enum):
     text = 0
@@ -13,7 +14,6 @@ class AttribType(enum.Enum):
     number_int = 2
     options = 3
     check = 4
-    
 
 class AppAttribStore(object):
     '''
@@ -24,6 +24,7 @@ class AppAttribStore(object):
         Constructor
         '''
         self._attribs = {}
+        self._widgets = {}
         
         self._Form = PyQt5.QtWidgets.QWidget()
         self._Form.setLayout(PyQt5.QtWidgets.QFormLayout())         
@@ -55,8 +56,24 @@ class AppAttribStore(object):
         buttonCancel.clicked.connect(self._dialogSettings.reject)
         buttonApply.clicked.connect(self.apply_settings)
 
-    def save(self):
-        pass
+    def save(self, element):
+        for attrib_name in self._attribs.keys():
+            subelement = xml.etree.ElementTree.Element(attrib_name)
+            if self._attribs[attrib_name].attribtype == AttribType.text:
+                subelement.text = self._attribs[attrib_name].value
+            elif self._attribs[attrib_name].attribtype == AttribType.number:
+                subelement.text = str(self._attribs[attrib_name].value)              
+            elif self._attribs[attrib_name].attribtype == AttribType.number_int:
+                subelement.text = str(self._attribs[attrib_name].value) 
+            elif self._attribs[attrib_name].attribtype == AttribType.options:
+                subelement.text = self._attribs[attrib_name].value
+            elif self._attribs[attrib_name].attribtype == AttribType.check:
+                if self._attribs[attrib_name].value:
+                    subelement.text = 'True'
+                else:
+                    subelement.text = 'False'
+            element.append(subelement)
+        return element
     
     def load(self):
         pass
@@ -65,7 +82,6 @@ class AppAttribStore(object):
         if name in self._attribs.keys():
             print('attribute with given name already exist!')
             raise IOError
-            return
         
         app_attrib = AppAttribute()
         app_attrib.attribtype = attribtype
@@ -74,18 +90,33 @@ class AppAttribStore(object):
         app_attrib.description = description
         
         self._set(app_attrib, value)  
-        self._attribs[name] = app_attrib        
+        self._attribs[name] = app_attrib       
+        
+        if app_attrib.attribtype == AttribType.text:
+            self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
+            self._Form.layout().addRow(app_attrib.description,self._widgets[name])
+        elif app_attrib.attribtype == AttribType.number:
+            self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
+            self._widgets[name].setValidator(PyQt5.QtGui.QDoubleValidator())
+            self._Form.layout().addRow(app_attrib.description,self._widgets[name])              
+        elif app_attrib.attribtype == AttribType.number_int:
+            self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
+            self._widgets[name].setValidator(PyQt5.QtGui.QIntValidator())
+            self._Form.layout().addRow(app_attrib.description,self._widgets[name])
+        elif app_attrib.attribtype == AttribType.options:
+            raise NotImplementedError 
+        elif app_attrib.attribtype == AttribType.check:
+            raise NotImplementedError  
     
     def set(self, name, value):
         if not (name in self._attribs.keys()):
             print('no attribute with given name!')
             raise IOError
-            return
         self._set(self._attribs[name], value)
     
     def _set(self, app_attrib, value):        
         if app_attrib.attribtype == AttribType.text:
-            app_attrib.value = str(value)
+            app_attrib.value = str(value)            
         elif app_attrib.attribtype == AttribType.number:
             app_attrib.value = float(value)
         elif app_attrib.attribtype == AttribType.number_int:
@@ -93,8 +124,7 @@ class AppAttribStore(object):
         elif app_attrib.attribtype == AttribType.options:
             if not (value in app_attrib.option_list):
                 print('empty option list given!')
-                raise IOError
-                return     
+                raise IOError    
             app_attrib.value = value
         elif app_attrib.attribtype == AttribType.check:
             app_attrib.value = bool(value)  
@@ -105,37 +135,20 @@ class AppAttribStore(object):
         if not (name in self._attribs.keys()):
             print('wrong type given!')
             raise IOError
-            return None
         return self._attribs[name].value
     
-    def get_settingsform(self):
-        
-        while self._Form.layout().count() > 0:
-            item = self._Form.layout().takeAt(0)
-            if not item:
-                continue
-            w = item.widget()
-            if w:
-                w.deleteLater()
-
-        self._Form.setLayout(PyQt5.QtWidgets.QFormLayout())   
-        for attrib in self._attribs.values():
-            if attrib.attribtype == AttribType.text:
-                edit_text = PyQt5.QtWidgets.QLineEdit(attrib.value)
-                self._Form.layout().addRow(attrib.description,edit_text)
-            elif attrib.attribtype == AttribType.number:
-                edit_text = PyQt5.QtWidgets.QLineEdit(str(attrib.value))
-                edit_text.setValidator(PyQt5.QtGui.QDoubleValidator())
-                self._Form.layout().addRow(attrib.description,edit_text)                
-            elif attrib.attribtype == AttribType.number_int:
-                edit_text = PyQt5.QtWidgets.QLineEdit(str(attrib.value))
-                edit_text.setValidator(PyQt5.QtGui.QIntValidator())
-                self._Form.layout().addRow(attrib.description,edit_text)   
-            elif attrib.attribtype == AttribType.options:
+    def get_settingsform(self):        
+        for name in self._attribs.keys():
+            if self._attribs[name].attribtype == AttribType.text:
+                self._widgets[name].setText(str(self._attribs[name].value))
+            elif self._attribs[name].attribtype == AttribType.number:
+                self._widgets[name].setText(str(self._attribs[name].value))               
+            elif self._attribs[name].attribtype == AttribType.number_int:
+                self._widgets[name].setText(str(self._attribs[name].value))   
+            elif self._attribs[name].attribtype == AttribType.options:
                 raise NotImplementedError 
-            elif attrib.attribtype == AttribType.check:
-                raise NotImplementedError 
-        
+            elif self._attribs[name].attribtype == AttribType.check:
+                raise NotImplementedError         
         return self._Form
     
     def exec_settings(self, title = None):
@@ -145,7 +158,17 @@ class AppAttribStore(object):
         self._dialogSettings.exec_()    
         
     def apply_settings(self):
-        raise NotImplementedError
+        for name in self._attribs.keys():
+            if self._attribs[name].attribtype == AttribType.text:
+                self._attribs[name].value = self._widgets[name].text()
+            elif self._attribs[name].attribtype == AttribType.number:
+                self._attribs[name].value = float(self._widgets[name].text())        
+            elif self._attribs[name].attribtype == AttribType.number_int:
+                self._attribs[name].value = int(self._widgets[name].text()) 
+            elif self._attribs[name].attribtype == AttribType.options:
+                raise NotImplementedError 
+            elif self._attribs[name].attribtype == AttribType.check:
+                raise NotImplementedError    
         
         
 class AppAttribute(object):

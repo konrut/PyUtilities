@@ -6,6 +6,7 @@ Created on 13 oct 2016
 
 import qtapp.utility
 import PyQt5.QtWidgets
+import xml.etree.ElementTree
 
 import subprocess
 
@@ -37,8 +38,14 @@ class AppUtilSvn(qtapp.utility.AppUtility):
         self._add_menuaction(action_test.text(), action_test)
                 
     def put(self, file_dir, svn_dir, comment = ''):
-        subprocess.call(['svnmucc', '--non-interactive',  '-m', comment,'put', file_dir, svn_dir])            
+        subprocess.call([self.get_attrib('SVN_bin') + 'svnmucc', '--non-interactive',  '-m', comment,'put', file_dir, svn_dir])         
+        
+    def copy(self, svn_dir, dest_dir, rev = ''):
+        subprocess.call([self.get_attrib('SVN_bin') + 'svnmucc', '--non-interactive',  'cp', rev, svn_dir, dest_dir])        
         
     def _test(self):
-        self.put(PyQt5.QtWidgets.QFileDialog.getOpenFileName()[0],'svn://diskstation/library/footprints/tmp','test')
+        element = xml.etree.ElementTree.Element(self.name)
+        elementTree = xml.etree.ElementTree.ElementTree(element = self._attribs.save(element))
+        elementTree.write('tmp.xml')
+        #self.put(PyQt5.QtWidgets.QFileDialog.getOpenFileName()[0],'svn://diskstation/library/footprints/tmp','test')
     
