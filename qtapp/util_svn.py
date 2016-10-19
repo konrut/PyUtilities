@@ -29,14 +29,14 @@ class AppUtilSvn(qtapp.utility.AppUtility):
         #Actions:
         action_settings = PyQt5.QtWidgets.QAction('Settings', self)
         action_settings.setStatusTip('SQL connection settings')
-        action_settings.triggered.connect(self.exec_settings)  
+        action_settings.triggered.connect(self.settings_exec)  
         self._add_menuaction(action_settings.text(), action_settings)
         
         action_test = PyQt5.QtWidgets.QAction('debug', self)
         action_test.setStatusTip('Test action')
         action_test.triggered.connect(self._test)  
         self._add_menuaction(action_test.text(), action_test)
-                
+               
     def put(self, file_dir, svn_dir, comment = ''):
         subprocess.call([self.get_attrib('SVN_bin') + 'svnmucc', '--non-interactive',  '-m', comment,'put', file_dir, svn_dir])         
         
@@ -47,5 +47,4 @@ class AppUtilSvn(qtapp.utility.AppUtility):
         element = xml.etree.ElementTree.Element(self.name)
         elementTree = xml.etree.ElementTree.ElementTree(element = self._attribs.save(element))
         elementTree.write('tmp.xml')
-        #self.put(PyQt5.QtWidgets.QFileDialog.getOpenFileName()[0],'svn://diskstation/library/footprints/tmp','test')
     

@@ -15,52 +15,62 @@ class AttribType(enum.Enum):
     options = 3
     check = 4
 
-class AppAttribStore(object):
+class AppAttribStore(PyQt5.QtWidgets.QWidget):
     '''
     classdocs
     '''
-    def __init__(self):
-        '''
-        Constructor
-        '''
+    def __init__(self, parent = None):
+        super(AppAttribStore,self).__init__(parent)
         self._attribs = {}
         self._widgets = {}
         
-        self._Form = PyQt5.QtWidgets.QWidget()
-        self._Form.setLayout(PyQt5.QtWidgets.QFormLayout())         
+        self.setLayout(PyQt5.QtWidgets.QFormLayout())         
         
         buttonOK = PyQt5.QtWidgets.QPushButton('OK')
         buttonOK.setDefault(True)
         buttonCancel = PyQt5.QtWidgets.QPushButton('Cancel')
         buttonApply = PyQt5.QtWidgets.QPushButton('Apply')
         
-        Buttons = PyQt5.QtWidgets.QWidget()
-        Buttons.setLayout(PyQt5.QtWidgets.QHBoxLayout())
-        Buttons.layout().addStretch()
-        Buttons.layout().addWidget(buttonOK)                
-        Buttons.layout().addWidget(buttonCancel)
-        Buttons.layout().addWidget(buttonApply)
+        buttons = PyQt5.QtWidgets.QWidget()
+        buttons.setLayout(PyQt5.QtWidgets.QHBoxLayout())
+        buttons.layout().addStretch()
+        buttons.layout().addWidget(buttonOK)                
+        buttons.layout().addWidget(buttonCancel)
+        buttons.layout().addWidget(buttonApply)
         
-        self._wgtSettings = PyQt5.QtWidgets.QWidget()
-        self._wgtSettings.setWindowTitle('Settings')   
-        self._wgtSettings.setLayout(PyQt5.QtWidgets.QVBoxLayout())
-        self._wgtSettings.layout().addWidget(self._Form)
-        self._wgtSettings.layout().addWidget(Buttons)
-        self._wgtSettings.layout().addStretch()
+        self._widgetdialog = PyQt5.QtWidgets.QWidget()
+        self._widgetdialog.setWindowTitle('Settings')   
+        self._widgetdialog.setLayout(PyQt5.QtWidgets.QVBoxLayout())
+        self._widgetdialog.layout().addWidget(self)
+        self._widgetdialog.layout().addWidget(buttons)
+        self._widgetdialog.layout().addStretch()
         
         self._dialogSettings = PyQt5.QtWidgets.QDialog()
         self._dialogSettings.setLayout(PyQt5.QtWidgets.QVBoxLayout())
-        self._dialogSettings.layout().addWidget(self._wgtSettings)        
+        self._dialogSettings.layout().addWidget(self._widgetdialog)    
+            
         buttonOK.clicked.connect(self._dialogSettings.accept)
         buttonOK.clicked.connect(self.apply_settings)
         buttonCancel.clicked.connect(self._dialogSettings.reject)
         buttonApply.clicked.connect(self.apply_settings)
 
-    def save(self, element):
+    def save(self, element, xml_tag = ''):
+        if element == None:
+            return        
+        elif type(element) == str:
+            if xml_tag == '':
+                tag = element
+            else:
+                tag = xml_tag
+            out_element = xml.etree.ElementTree.Element(tag)
+            elementTree = xml.etree.ElementTree.ElementTree(out_element)
+        else:
+            out_element = element
+        
         for attrib_name in self._attribs.keys():
             subelement = xml.etree.ElementTree.Element(attrib_name)
             if self._attribs[attrib_name].attribtype == AttribType.text:
-                subelement.text = self._attribs[attrib_name].value
+                subelement. text = self._attribs[attrib_name].value
             elif self._attribs[attrib_name].attribtype == AttribType.number:
                 subelement.text = str(self._attribs[attrib_name].value)              
             elif self._attribs[attrib_name].attribtype == AttribType.number_int:
@@ -72,11 +82,42 @@ class AppAttribStore(object):
                     subelement.text = 'True'
                 else:
                     subelement.text = 'False'
-            element.append(subelement)
-        return element
+            out_element.append(subelement)
+        if type(element) == str:
+            elementTree.write(element)
+        return out_element
     
-    def load(self):
-        pass
+    def load(self, element, xml_tag = ''):
+        if type(element) == str:
+            if xml_tag == '':
+                tag = element
+            else:
+                tag = xml_tag
+            elementTree = xml.etree.ElementTree.ElementTree()
+            elementTree.parse(element)
+            if elementTree.getroot().tag == tag:
+                element = elementTree.getroot()
+            else:
+                element = elementTree.getroot().find(tag)
+            
+        if element == None:
+            return
+
+        for attrib_name in self._attribs.keys():
+            str_value = element.findtext(attrib_name)
+            if str_value == None:
+                continue
+            if self._attribs[attrib_name].attribtype == AttribType.text:
+                self.set(attrib_name,str_value)
+            elif self._attribs[attrib_name].attribtype == AttribType.number:
+                self.set(attrib_name,float(str_value))              
+            elif self._attribs[attrib_name].attribtype == AttribType.number_int:
+                self.set(attrib_name,int(str_value))
+            elif self._attribs[attrib_name].attribtype == AttribType.options:
+                self.set(attrib_name,str_value)
+            elif self._attribs[attrib_name].attribtype == AttribType.check:
+                self.set(attrib_name,bool(str_value))
+        return element
     
     def add(self, name, value, attribtype = AttribType.text, description = '',is_setting = True, option_list = []):
         if name in self._attribs.keys():
@@ -94,15 +135,15 @@ class AppAttribStore(object):
         
         if app_attrib.attribtype == AttribType.text:
             self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
-            self._Form.layout().addRow(app_attrib.description,self._widgets[name])
+            self.layout().addRow(app_attrib.description,self._widgets[name])
         elif app_attrib.attribtype == AttribType.number:
             self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
             self._widgets[name].setValidator(PyQt5.QtGui.QDoubleValidator())
-            self._Form.layout().addRow(app_attrib.description,self._widgets[name])              
+            self.layout().addRow(app_attrib.description,self._widgets[name])              
         elif app_attrib.attribtype == AttribType.number_int:
             self._widgets[name] = PyQt5.QtWidgets.QLineEdit(str(value))
             self._widgets[name].setValidator(PyQt5.QtGui.QIntValidator())
-            self._Form.layout().addRow(app_attrib.description,self._widgets[name])
+            self.layout().addRow(app_attrib.description,self._widgets[name])
         elif app_attrib.attribtype == AttribType.options:
             raise NotImplementedError 
         elif app_attrib.attribtype == AttribType.check:
@@ -149,13 +190,13 @@ class AppAttribStore(object):
                 raise NotImplementedError 
             elif self._attribs[name].attribtype == AttribType.check:
                 raise NotImplementedError         
-        return self._Form
+        return self
     
     def exec_settings(self, title = None):
         self.get_settingsform()
         if title != None:
             self._dialogSettings.setWindowTitle(title)
-        self._dialogSettings.exec_()    
+        return self._dialogSettings.exec_()    
         
     def apply_settings(self):
         for name in self._attribs.keys():
