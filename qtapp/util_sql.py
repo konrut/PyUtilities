@@ -9,8 +9,6 @@ import qtapp.utility
 import PyQt5.QtWidgets
 import PyQt5.QtSql
 
-
-
 import time
 
 class AppUtilSql(qtapp.utility.AppUtility):

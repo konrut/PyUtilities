@@ -32,12 +32,6 @@ class AppWidget(PyQt5.QtWidgets.QWidget):
     def settings_exec(self):
         return self._attribs.exec_settings(self.name + ': settings')
     
-    def _settings_save(self, element):
-        return self._attribs.save(element, xml_tag = self.name)
-    
-    def _settings_load(self, element):
-        return self._attribs.load(element, xml_tag = self.name)
-        
     def set_name(self, name):
         self.name = name
         
@@ -68,6 +62,12 @@ class AppWidget(PyQt5.QtWidgets.QWidget):
         
     def _add_attrib(self, name, value, attribtype = qtapp.attribstore.AttribType.text, description = '',is_setting = True, option_list = []):
         return self._attribs.add(name, value, attribtype, description, is_setting, option_list)
+    
+    def _settings_save(self, element):
+        return self._attribs.save(element, xml_tag = self.name)
+    
+    def _settings_load(self, element):
+        return self._attribs.load(element, xml_tag = self.name)
         
 
         

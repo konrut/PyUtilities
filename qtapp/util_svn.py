@@ -44,7 +44,5 @@ class AppUtilSvn(qtapp.utility.AppUtility):
         subprocess.call([self.get_attrib('SVN_bin') + 'svnmucc', '--non-interactive',  'cp', rev, svn_dir, dest_dir])        
         
     def _test(self):
-        element = xml.etree.ElementTree.Element(self.name)
-        elementTree = xml.etree.ElementTree.ElementTree(element = self._attribs.save(element))
-        elementTree.write('tmp.xml')
+        pass
     

@@ -6,15 +6,14 @@ Created on 15 wrz 2016
 
 import sys
 from PyQt5 import QtWidgets
-import qtapp.widget
+import qtapp.page
 import qtapp.util_sql
 import qtapp.util_svn
 
-class PageWgtHome(qtapp.widget.AppWidget):    
+class PageWgtHome(qtapp.page.AppPage):    
     
     def __init__(self, appWindow):
-        super(PageWgtHome,self).__init__();
-        self.Name = 'Page'        
+        super(PageWgtHome,self).__init__('Page');
         
     def init(self):
         self.message('Hallo World!');

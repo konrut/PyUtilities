@@ -10,6 +10,7 @@ import sys
 import datetime
 import xml.etree
 from PyQt5 import QtWidgets, QtCore, QtGui
+import PyQt5
 
 class AppWindow(QtWidgets.QMainWindow):
     '''
@@ -32,19 +33,18 @@ class AppWindow(QtWidgets.QMainWindow):
         
         #self.destroyed.connect(self.app_close)
         #central widget:
-        centralWidget = QtWidgets.QWidget()
-        self.setCentralWidget(centralWidget)
         
-        vLayout = QtWidgets.QVBoxLayout()
         self.mainWidget = QtWidgets.QWidget(self)
-        vLayout.addWidget(self.mainWidget)
+        self.mainWidget.setLayout(PyQt5.QtWidgets.QHBoxLayout())        
         
         self.msgLog = QtWidgets.QTextEdit(self)
         self.msgLog.setFixedHeight(100)
         self.msgLog.setReadOnly(True)
-        vLayout.addWidget(self.msgLog)
         
-        self.centralWidget().setLayout(vLayout)
+        self.setCentralWidget(QtWidgets.QWidget())
+        self.centralWidget().setLayout(QtWidgets.QVBoxLayout())
+        self.centralWidget().layout().addWidget(self.mainWidget)
+        self.centralWidget().layout().addWidget(self.msgLog)        
                 
         #Main menu bar:
         extractAction = QtWidgets.QAction("Exit", self)
@@ -56,7 +56,7 @@ class AppWindow(QtWidgets.QMainWindow):
         fileMenu = mainMenu.addMenu('&File')
         fileMenu. addAction(extractAction) 
         
-        self.menuUtilities = None
+        self.menu_utilities = None
         
         #Content
         self.utilities = {}
@@ -79,35 +79,44 @@ class AppWindow(QtWidgets.QMainWindow):
             self.progressBar.setValue(progress);
             self.progressBar.setVisible(True);  
         
-    def set_currentpage(self, widget):
+    def set_currentpage(self, page_name):
+        if not (page_name in self.pages.keys()):
+            self.message('No page with specified name.')
+            return
+        print('here')
+        
+        
+        self.mainWidget.layout().addWidget(self.pages[page_name])
         # @todo: 
-        vLayout = QtWidgets.QVBoxLayout()  
-        vLayout.addWidget(widget)
-        self.mainWidget.setLayout(vLayout);  
+#         vLayout = QtWidgets.QVBoxLayout()  
+#         vLayout.addWidget(widget)
+#         self.mainWidget.setLayout(vLayout);  
          
     def add_page(self, page):
-        if page.name in self.utilities:
+        if page.name in self.pages.keys():
             self.message('Adding page error. Page with given name already exists.')
             return
+        
         self.pages[page.name] = page
+        self.settings_load(page, 'pages')
         
         #Signals:
         page.sig_message.connect(self.message)        
         page.sig_progress.connect(self.progress) 
         
+        self.set_currentpage(page.name)
+        
     def add_utility(self, utility):
-        if utility.name in self.utilities:
+        if utility.name in self.utilities.keys():
             self.message('Adding utility error. Utility with given name already exists.')
             return
                 
         utility_menu = utility.get_menu()
-        if utility_menu == None:
-            return
+        if utility_menu != None:                    
+            if self.menu_utilities == None:
+                self.menu_utilities = self.menuBar().addMenu('&Utilities')            
+            self.menu_utilities.addMenu(utility_menu)
         
-        if self.menuUtilities == None:
-            self.menuUtilities = self.menuBar().addMenu('&Utilities')
-            
-        self.menuUtilities.addMenu(utility_menu)
         self.utilities[utility.name] = utility
         self.settings_load(utility, 'utilities')
         
