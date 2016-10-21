@@ -83,8 +83,6 @@ class AppWindow(QtWidgets.QMainWindow):
         if not (page_name in self.pages.keys()):
             self.message('No page with specified name.')
             return
-        print('here')
-        
         
         self.mainWidget.layout().addWidget(self.pages[page_name])
         # @todo: 

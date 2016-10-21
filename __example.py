@@ -5,14 +5,14 @@ Created on 15 wrz 2016
 '''
 
 import sys
-from PyQt5 import QtWidgets
+import PyQt5.QtWidgets
 import qtapp.page
 import qtapp.util_sql
 import qtapp.util_svn
 
 class PageWgtHome(qtapp.page.AppPage):    
     
-    def __init__(self, appWindow):
+    def __init__(self):
         super(PageWgtHome,self).__init__('Page');
         
     def init(self):
@@ -20,19 +20,16 @@ class PageWgtHome(qtapp.page.AppPage):
         self.progress(20);
 
 def main():
-    app = QtWidgets.QApplication(sys.argv)
+    app = PyQt5.QtWidgets.QApplication(sys.argv)
     
-    win = qtapp.AppWindow();
-    win.show();
+    win = qtapp.AppWindow()
     
-    pageHome = PageWgtHome(win);
-    utilSql = qtapp.util_sql.AppUtilSql()
-    utilSvn = qtapp.util_svn.AppUtilSvn()
+    win.add_page(PageWgtHome())
     
-    win.add_page(pageHome);
-    pageHome.init()
-    win.add_utility(utilSql)
-    win.add_utility(utilSvn)    
+    win.add_utility(qtapp.util_sql.AppUtilSql())
+    win.add_utility(qtapp.util_svn.AppUtilSvn())    
+    
+    win.show()
     
     sys.exit(app.exec_())
     
