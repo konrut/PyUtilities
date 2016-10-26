@@ -6,7 +6,6 @@ Created on 13 oct 2016
 
 import qtapp.utility
 import PyQt5.QtWidgets
-import xml.etree.ElementTree
 
 import subprocess
 

@@ -8,9 +8,15 @@ Created on 27 lut 2016
 
 import sys
 import datetime
-import xml.etree
+import xml.etree.ElementTree
+import enum
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 import PyQt5
+
+class AppWidgetGroup(enum.Enum):
+    pages = 'pages'
+    utilities = 'utilities'
 
 class AppWindow(QtWidgets.QMainWindow):
     '''
@@ -61,7 +67,7 @@ class AppWindow(QtWidgets.QMainWindow):
         #Content
         self.utilities = {}
         self.pages = {}
-        
+                
         self._file_settings = 'settings.xml'                
         
     def home(self):
@@ -96,7 +102,7 @@ class AppWindow(QtWidgets.QMainWindow):
             return
         
         self.pages[page.name] = page
-        self.settings_load(page, 'pages')
+        self.settings_load(page, AppWidgetGroup.pages)
         
         #Signals:
         page.sig_message.connect(self.message)        
@@ -116,7 +122,7 @@ class AppWindow(QtWidgets.QMainWindow):
             self.menu_utilities.addMenu(utility_menu)
         
         self.utilities[utility.name] = utility
-        self.settings_load(utility, 'utilities')
+        self.settings_load(utility, AppWidgetGroup.utilities)
         
         #Signals:
         utility.sig_message.connect(self.message)        
@@ -151,15 +157,15 @@ class AppWindow(QtWidgets.QMainWindow):
         root = xml.etree.ElementTree.Element(self.windowTitle())
         elementTree = xml.etree.ElementTree.ElementTree(root)
 
-        for group_name in ['utilities', 'pages']:
+        for group_name in [AppWidgetGroup.utilities, AppWidgetGroup.pages]:
             group = xml.etree.ElementTree.Element(group_name)
             root.append(group)
-            if group_name == 'utilities':
+            if group_name == AppWidgetGroup.utilities:
                 for utility in self.utilities.values():
                     element = xml.etree.ElementTree.Element(utility.name)
                     utility._settings_save(element)
                     group.append(element)
-            elif group_name == 'pages':
+            elif group_name == AppWidgetGroup.pages:
                 for page in self.pages.values():
                     element = xml.etree.ElementTree.Element(page.name)
                     page._settings_save(element)
@@ -167,7 +173,7 @@ class AppWindow(QtWidgets.QMainWindow):
         
         elementTree.write(file_name)
         
-    def settings_load(self, widget = None, group_name = '', file_name = ''):
+    def settings_load(self, widget = None, widget_group = None, file_name = ''):
         if file_name == '':
             file_name = self._file_settings
         
@@ -178,29 +184,29 @@ class AppWindow(QtWidgets.QMainWindow):
             return 
         
         if widget != None:
-            if elementTree.getroot().tag == group_name:
+            if elementTree.getroot().tag == widget_group.value:
                 group = elementTree.getroot()
             else:
-                group = elementTree.getroot().find(group_name)            
+                group = elementTree.getroot().find(widget_group.value)            
             if group == None:
                 return
             element = group.find(widget.name)
             widget._settings_load(element)
             return
         
-        for group_name in ['utilities', 'pages']:
-            if elementTree.getroot().tag == group_name:
+        for widget_group in [AppWidgetGroup.utilities, AppWidgetGroup.pages]:
+            if elementTree.getroot().tag == widget_group.value:
                 group = elementTree.getroot()
             else:
-                group = elementTree.getroot().find(group_name)            
+                group = elementTree.getroot().find(widget_group.value)            
             if group == None:
                 continue
                         
-            if group_name == 'utilities':
+            if widget_group == AppWidgetGroup.utilities:
                 for utility in self.utilities.values():
                     element = group.find(utility.name)
                     utility._settings_load(element)
-            elif group_name == 'pages':
+            elif widget_group == AppWidgetGroup.pages:
                 for page in self.pages.values():
                     element = group.find(page.name)
                     page._settings_load(element)
