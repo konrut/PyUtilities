@@ -194,8 +194,7 @@ class AppWindow(QtWidgets.QMainWindow):
             widget._settings_load(element)
             return
         
-        for element in root.findall("."):
-            print(element.tag)
+        for element in root.findall('*'):
             if element.tag == AppWidgetGroup.utilities.value:
                 self.utilities[element.get('name')]._settings_load(element)
             elif element.tag == AppWidgetGroup.pages.value:
