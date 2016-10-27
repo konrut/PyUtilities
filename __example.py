@@ -27,9 +27,13 @@ def main():
     win.add_page(PageWgtHome())
     
     win.add_utility(qtapp.util_sql.AppUtilSql())
-    win.add_utility(qtapp.util_svn.AppUtilSvn())    
+    
+    svn = qtapp.util_svn.AppUtilSvn()
+    win.add_utility(svn)    
     
     win.show()
+    
+    win.settings_load()
     
     sys.exit(app.exec_())
     

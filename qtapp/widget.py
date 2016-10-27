@@ -64,10 +64,10 @@ class AppWidget(PyQt5.QtWidgets.QWidget):
         return self._attribs.add(name, value, attribtype, description, is_setting, option_list)
     
     def _settings_save(self, element):
-        return self._attribs.save(element, xml_tag = self.name)
+        return self._attribs.save(element, xml_attribs = {'name':self.name})
     
     def _settings_load(self, element):
-        return self._attribs.load(element, xml_tag = self.name)
+        return self._attribs.load(element)
         
 
         

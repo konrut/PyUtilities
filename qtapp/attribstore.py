@@ -54,15 +54,12 @@ class AppAttribStore(PyQt5.QtWidgets.QWidget):
         buttonCancel.clicked.connect(self._dialogSettings.reject)
         buttonApply.clicked.connect(self.apply_settings)
 
-    def save(self, element, xml_tag = ''):
+    def save(self, element, xml_attribs = {}, xml_file = ''):
         if element == None:
             return        
         elif type(element) == str:
-            if xml_tag == '':
-                tag = element
-            else:
-                tag = xml_tag
-            out_element = xml.etree.ElementTree.Element(tag)
+            tag = element
+            out_element = xml.etree.ElementTree.Element(tag, xml_attribs)
             elementTree = xml.etree.ElementTree.ElementTree(out_element)
         else:
             out_element = element
@@ -83,18 +80,16 @@ class AppAttribStore(PyQt5.QtWidgets.QWidget):
                 else:
                     subelement.text = 'False'
             out_element.append(subelement)
-        if type(element) == str:
-            elementTree.write(element)
+        if type(element) == str and xml_file != '':
+            elementTree.write(xml_file)
         return out_element
     
-    def load(self, element, xml_tag = ''):
-        if type(element) == str:
-            if xml_tag == '':
-                tag = element
-            else:
-                tag = xml_tag
+    def load(self, element, xml_file = ''):
+        if type(element) == str and xml_file != '':
+            tag = element
+            
             elementTree = xml.etree.ElementTree.ElementTree()
-            elementTree.parse(element)
+            elementTree.parse(xml_file)
             if elementTree.getroot().tag == tag:
                 element = elementTree.getroot()
             else:

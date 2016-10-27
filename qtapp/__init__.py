@@ -15,8 +15,8 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import PyQt5
 
 class AppWidgetGroup(enum.Enum):
-    pages = 'pages'
-    utilities = 'utilities'
+    pages = 'page'
+    utilities = 'utility'
 
 class AppWindow(QtWidgets.QMainWindow):
     '''
@@ -24,10 +24,12 @@ class AppWindow(QtWidgets.QMainWindow):
     '''
     def __init__(self):
         super(AppWindow,self).__init__()
+        #params:
+        self.name = 'Qt application'        
         
-        self.setGeometry(50,50,600,600)
+        self.resize(600,600)
         self.setWindowIcon(QtGui.QIcon("resources/pyIcon.png"))
-        self.setWindowTitle("QtApp")    
+        self.setWindowTitle(self.name)    
                 
         self.statusBar = QtWidgets.QStatusBar()
         self.progressBar = QtWidgets.QProgressBar()
@@ -35,11 +37,9 @@ class AppWindow(QtWidgets.QMainWindow):
         self.setStatusBar(self.statusBar)
         self.progressBar.setValue(0)
         self.progressBar.setFixedSize(self.progressBar.width()/2, self.progressBar.height())
-        self.progressBar.setVisible(False)        
-        
-        #self.destroyed.connect(self.app_close)
-        #central widget:
-        
+        self.progressBar.setVisible(False)      
+
+        #central widget:        
         self.mainWidget = QtWidgets.QWidget(self)
         self.mainWidget.setLayout(PyQt5.QtWidgets.QHBoxLayout())        
         
@@ -67,8 +67,9 @@ class AppWindow(QtWidgets.QMainWindow):
         #Content
         self.utilities = {}
         self.pages = {}
-                
-        self._file_settings = 'settings.xml'                
+        
+        self._settings_rootname = 'qtapp'                
+        self._settings_file = 'settings.xml'                
         
     def home(self):
         self.setWidget(self.homeWgt)
@@ -91,10 +92,6 @@ class AppWindow(QtWidgets.QMainWindow):
             return
         
         self.mainWidget.layout().addWidget(self.pages[page_name])
-        # @todo: 
-#         vLayout = QtWidgets.QVBoxLayout()  
-#         vLayout.addWidget(widget)
-#         self.mainWidget.setLayout(vLayout);  
          
     def add_page(self, page):
         if page.name in self.pages.keys():
@@ -128,9 +125,9 @@ class AppWindow(QtWidgets.QMainWindow):
         utility.sig_message.connect(self.message)        
         utility.sig_progress.connect(self.progress) 
         
-    def settings_save(self, widget = None, group_name = '', file_name = ''):
+    def settings_save(self, widget = None, widget_group = None, file_name = ''):
         if file_name == '':
-            file_name = self._file_settings
+            file_name = self._settings_file
         
         if widget != None:
             elementTree = xml.etree.ElementTree.ElementTree()
@@ -138,79 +135,71 @@ class AppWindow(QtWidgets.QMainWindow):
                 elementTree.parse(file_name)
             except FileNotFoundError:
                 return
-            if elementTree.getroot().tag == group_name:
-                group = elementTree.getroot()
-            else:
-                group = elementTree.getroot().find(group_name)       
-            if group == None:
-                return
-            element = group.find(widget.name)
+            
+            root = elementTree.getroot()
+
+            for element in elementTree.getroot().findall(widget_group.value):
+                if element.get('name',None) == widget.name:
+                    break
+                else:                    
+                    element = None
             if element == None:
-                element = xml.etree.ElementTree.Element(widget.name)
-                group.append(element)
+                element = xml.etree.ElementTree.Element(widget_group.value, {'name':widget.name})
+                root.append(element)
             else:             
-                element.clear()
+                element.clear()     
+                element.set('name',widget.name)       
             widget._settings_save(element)
             elementTree.write(file_name)
             return
             
-        root = xml.etree.ElementTree.Element(self.windowTitle())
+        root = xml.etree.ElementTree.Element(self._settings_rootname,{'name':self.name})
         elementTree = xml.etree.ElementTree.ElementTree(root)
 
-        for group_name in [AppWidgetGroup.utilities, AppWidgetGroup.pages]:
-            group = xml.etree.ElementTree.Element(group_name)
-            root.append(group)
-            if group_name == AppWidgetGroup.utilities:
+        for widget_group in [AppWidgetGroup.utilities, AppWidgetGroup.pages]: 
+            if widget_group == AppWidgetGroup.utilities:
                 for utility in self.utilities.values():
-                    element = xml.etree.ElementTree.Element(utility.name)
+                    element = xml.etree.ElementTree.Element(widget_group.value, {'name':utility.name})
                     utility._settings_save(element)
-                    group.append(element)
-            elif group_name == AppWidgetGroup.pages:
+                    root.append(element)
+            elif widget_group == AppWidgetGroup.pages:
                 for page in self.pages.values():
-                    element = xml.etree.ElementTree.Element(page.name)
+                    element = xml.etree.ElementTree.Element(widget_group.value, {'name':page.name})
                     page._settings_save(element)
-                    group.append(element)
+                    root.append(element)
         
         elementTree.write(file_name)
         
     def settings_load(self, widget = None, widget_group = None, file_name = ''):
         if file_name == '':
-            file_name = self._file_settings
+            file_name = self._settings_file
         
         elementTree = xml.etree.ElementTree.ElementTree()
         try:
             elementTree.parse(file_name)
         except FileNotFoundError:
-            return 
+            return
         
+        root = elementTree.getroot()   
+             
         if widget != None:
-            if elementTree.getroot().tag == widget_group.value:
-                group = elementTree.getroot()
-            else:
-                group = elementTree.getroot().find(widget_group.value)            
-            if group == None:
+            element = None
+            for element in root.findall(widget_group.value):
+                if element.get('name',None) == widget.name:
+                    break
+                else:                    
+                    element = None
+            if element == None:
                 return
-            element = group.find(widget.name)
             widget._settings_load(element)
             return
         
-        for widget_group in [AppWidgetGroup.utilities, AppWidgetGroup.pages]:
-            if elementTree.getroot().tag == widget_group.value:
-                group = elementTree.getroot()
-            else:
-                group = elementTree.getroot().find(widget_group.value)            
-            if group == None:
-                continue
-                        
-            if widget_group == AppWidgetGroup.utilities:
-                for utility in self.utilities.values():
-                    element = group.find(utility.name)
-                    utility._settings_load(element)
-            elif widget_group == AppWidgetGroup.pages:
-                for page in self.pages.values():
-                    element = group.find(page.name)
-                    page._settings_load(element)
-     
+        for element in root.findall("."):
+            print(element.tag)
+            if element.tag == AppWidgetGroup.utilities.value:
+                self.utilities[element.get('name')]._settings_load(element)
+            elif element.tag == AppWidgetGroup.pages.value:
+                self.pages[element.get('name')]._settings_load(element)
                         
     def closeEvent(self, event):
         self.settings_save()
